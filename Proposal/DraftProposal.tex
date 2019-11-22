@@ -1,0 +1,338 @@
+\documentclass[a4paper,12pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[british,UKenglish]{babel}
+%\usepackage{enumitem}
+\usepackage{enumerate}
+\usepackage{parskip}
+\usepackage[margin=1.5in]{geometry}
+\usepackage[backend=biber]{biblatex}
+\addbibresource{refs.bib}
+
+%opening
+
+\begin{document}
+
+% This is all copied from the diploma one and honestly it's disgusting
+\rightline{\large\emph{Daniel K. Sääw}}
+\medskip
+\rightline{\large\emph{St Catharine's College}}
+\medskip
+\rightline{\large\emph{dks28}}
+
+\vfil
+
+\centerline{\large Computer Science Tripos Part II Project Proposal}
+\vspace{0.4in}
+\centerline{\Large \textbf{On Spectral Methods for Clustering of Irregular Digraphs}}
+\vspace{0.3in}
+\centerline{\large \today}
+
+\vfil
+
+\textbf{Project Originators:} Dr Luca Zanetti, Dr Thomas Sauerwald, Daniel Sääw
+
+\vspace{0.5in}
+
+\textbf{Project Supervisors:} Dr Thomas Sauerwald and Dr Luca Zanetti
+
+\vspace{0.5in}
+
+{\bf Director of Studies:} Dr Sergei Taraskin
+
+\vspace{0.5in}
+
+{\bf Overseers:} Prof.\ Anuj Dawar and Prof.\ Andrew Moore
+
+\vspace{0.5in}
+
+\vfil
+\eject
+
+\section*{Introduction and Description of the Work}
+	Clustering in general is the process of partitioning some data with the purpose of 
+	grouping together data that is `similar' in some way. It has thus become a fundamental, 
+	unsupervised, method in Machine Learning that allows an abstraction of some data set into 
+	a (comparatively) small number of communities comprising some subset of the original data 
+	the members of which are some notion of `similar' to one another. Due to results in 
+	spectral graph theory (in particular, the fact that the algebra\"ic multiplicity of 0 
+	in an undirected graph's Laplacian's characteristic polynomial is the number of connected 
+	components in this graph, as well as the Davis-Kahan Theorem \cite{daviskahan}), 
+	when clustering graphs with respect to, for example, conductance, we may apply spectral 
+	algorithms. \par
+	This means that it is fairly easy to cluster undirected graphs if by `communities' (i.e.\ 
+	vertex subsets that are `similar') we mean well-connected internally compared to the 
+	connections to the complement of the community. 
+	However, it is less clear what a community might be in a directed setting, since the edge 
+	direction makes notions of `connectivity' inherently more complex. For example, some 
+	digraph $G$ might exhibit a `cyclic flow'
+	structure in that the connections between individual subgraphs of $G$ might be 
+	unidirectional, whilst each such subgraph has equal in- and out-degrees, meaning that the 
+	undirected graph constructed from symmetrising $G$ might not exhibit communities in the 
+	classical sense. In general, the directional information might crucially change the 
+	meaning of the graph. Therefore, a number of techniques for clustering digraphs have 
+	emerged based on notions of `directional communities'. These techniques are usually 
+	supported with some model of directed random graph derived from Stochastic Block-Models 
+	(SBMs), which have the perhaps unreasonable property that each node so generated graphs 
+	will, in expectation, have equal in-degrees and out-degrees \cite{lucapaper, disimpaper}. \par
+	This project, therefore, will involve attempting to develop a model of random digraphs that will 
+	exhibit directional communities in a sense similar to previous directed SBMs, whilst 
+	improving over previous such models by also exhibiting properties of real-world graphs not 
+	included in previous models. For this purpose, a known model of random graph for an 
+	undirected setting will 
+	likely be augmented to feature directed edges to enable directional communities. Should 
+	this fail, the project would fall back on investigating the performance of the proposed 
+	algorithms on real-world graphs themselves.\\
+	This model (or a set of real-world graphs with properties not modelled by previous digraph 
+	models) will serve as a foundation for a comparison study of several spectral 
+	techniques for clustering that will determine if the proposed techniques perform 
+	satisfactory clustering on such `irregular' graphs. The random (or real-world) graphs used for this will have 
+	the additional benefit that such graphs lend themselves to regularisation techniques 
+	(again, previously developed for the setting of undirected graphs) -- that is modifications 
+	to the underlying graphs that make certain properties (such as degree) more homogeneous 
+	across the vertex set -- with the purpose of improving clusters detected by the algorithms,
+	meaning that 
+	the final step of the project will be conducting a second comparison study evaluating the 
+	improvement of each algorithm under the employment of such regularisation techniques. 
+
+\section*{Starting Point}
+	The concepts of graph clustering and random (as well as real-world) graphs were briefly 
+	introduced in the Paper 3 course \emph{Machine Learning and Real-world Data}. In that 
+	course, however, the problem was approached programmatically where my project will employ 
+	spectral methods. The linear algebra thus required for the project was touched on in the 
+	course \emph{Mathematical Methods I} from the Natural Sciences Tripos, and linear algebra 
+	in general is used in a number of courses of Part I of the Computer Science Tripos. 
+	\par
+	In the specific area of spectral clustering, there have been a few research papers 
+	concerning the detection of `directional' communities, introducing models of random 
+	digraphs with community structures, which should help extend undirected random graph models for this project. 
+	The project will involve implementing and refining algorithms presented in \cite{lucapaper,
+	disimpaper}. 
+	Furthermore, there is some pre\"existing literature on regularising undirected graphs for 
+	the purpose of clustering (e.g.\ \cite{rohereg, binyureg}), 
+	from which I will draw a starting point for the corresponding 
+	parts of the project.
+
+\section*{Substance and Structure of the Project}
+	The work carried out for this project will be the following:
+	\begin{enumerate}
+		\item A model of random graph will be developed
+		(and failing that, existing collections of real-world graphs will be sampled to 
+		replace the random model) that has the properties of 
+		irregularity, in the sense that certain properties of the graphs will be strongly 
+		heterogeneous across the graphs' vertices, and directional communities, in the sense that 
+		certain subsets of vertices will exhibit a notion of similarity internally that 
+		would be lost without directional information about the graph. This model will 
+		draw inspiration from previous directed SBMs and might be influenced by properties 
+		of a certain kind of real-world graph.
+		\item Implementations of previously presented spectral algorithms for clustering 
+		digraphs will be written, and comparatively evaluated in a statistically 
+		significant setting to determine whether the proposed algorithms perform 
+		satisfactory clustering with respect to the known, underlying communities inherent 
+		in the model of random graph.
+		\item Techniques for regularising graphs that have previously been developed for 
+		undirected graphs will be applied (and if necessary, first ported to a directed 
+		setting) to graphs drawn from the model developed at first, and the change in 
+		performance of the implemented algorithms will be evaluated in a statistically 
+		significant setting.
+	\end{enumerate}
+
+	\subsection*{Possible Extensions}
+	The project might also...
+	\begin{enumerate}[...]
+		\item investigate a hypothesis formulated in some previous literature that 
+		conjectures that using a graph representation that interpolates between the 
+		directed and an abstracted, undirected, representation might improve clustering 
+		results by retaining the directionality information whilst making the graph more 
+		susceptible to classical spectral clustering techniques.
+		\item apply the algorithms to real-world graphs that should intuitively be similar 
+		to those generated by the random model, and evaluate the performance based on node 
+		tags and determining the quality of the recovered clusters without a ground truth 
+		for underlying clusters.
+		\item develop formally a theoretical performance bound for the algorithms when 
+		applied to the graphs sampled from the random model.
+	\end{enumerate}
+
+\section*{Success Criteria}
+	The project should be deemed a success if the following criteria have been met:
+	\begin{enumerate}
+		\item Code implementing a (to be developed) model of random directed graph 
+		with highly irregular degrees and directional communities has been written, 
+		or a suitable set of real-world graphs with irregular features has been collected%
+		\footnote{Data sets corresponding to, for example, citation networks in academia are
+		available, and are prone to having the irregularity requirements (in the case of 
+		citation networks, with respect to in-degree) as desired.}
+		\item Spectral clustering algorithms proposed in previous research papers have 
+		been implemented, both base versions and variants conducting initial graph 
+		regularisation
+		\item A statistically significant verdict has been reached about whether the 
+		proposed algorithms are suitable for the clustering of highly irregular graphs 
+		\item A statistically significant verdict has been reached about whether the 
+		clusters detected by the proposed algorithms are improved by the application of 
+		graph regularisation 
+	\end{enumerate}
+
+\section*{Timetable and Milestones}
+
+I will divide my time into 2 week slots, to allow for sufficient granularity while simultaneously not committing myself to an excessively tight schedule.
+
+\begin{enumerate}[\bfseries Slot 1 - \normalfont]
+ \item 
+ \emph{12th October -- 25th October} 
+ \begin{itemize}
+	\item finalise and submit project proposal
+	\item research backgrounds of spectral clustering more thoroughly
+ \end{itemize}
+ 
+ \textbf{Deadlines}
+ \begin{itemize}
+  \item 
+  Phase 1 Proposal Deadline -- 14th October, 3 PM.
+  \item
+  Draft Proposal deadline -- 18th October, 12 noon.
+  \item
+  Proposal Deadline -- 25th October, 12 noon.
+ \end{itemize}
+ 
+ \item 
+ \emph{26th October -- 8th November}
+ \begin{itemize}
+	\item research models of random graphs with highly irregular degrees
+	\item determine a general type of real-world graph that is of interest to decide details of
+	random graph model
+ \end{itemize}
+ 
+ \item 
+ \emph{9th November -- 22nd November}
+ 	\begin{itemize}
+		\item formalise random-graph model
+		\item begin planning components of experimental set-up
+	\end{itemize}
+ \item 
+ \emph{23rd November -- 6th December} \\ \textit{Note: Due to my choice of Units of Assessment, this 
+ period will likely be very stressful. I therefore foresee less time to work on the project during 
+ this slot.}
+ \begin{itemize}
+	\item implement code to generate graphs drawn from the random model
+ \end{itemize}
+ 
+ \item 
+ \emph{7th December -- 20th December}
+ \begin{itemize}
+	\item implement previously proposed spectral algorithms for digraph clustering
+	\item implement code for graph normalisation
+ \end{itemize}
+ 
+ \item \label{measuredev}
+ \emph{21st December -- 3rd January}
+ \begin{itemize}
+	\item develop a measure for extent of success of clustering procedure
+	\item begin drafting introduction, preparation and implementation chapters of the 
+	dissertation
+ \end{itemize}
+ 
+ \item 
+ \emph{4th January -- 17th January}
+ \begin{itemize}
+	\item write code to generate graphs for test bench
+	\item complete preparation for comparison study of algorithms, including generating a 
+	set of graphs to compose the `test bench' to ensure internal consistency
+ \end{itemize}
+ 
+ \item 
+ \emph{18th January -- 31st January}
+ \begin{itemize}
+	\item conduct experiments to evaluate clustering algorithms with regard to performance measure developed in slot \ref{measuredev}
+	\item write and submit progress report
+\end{itemize}
+ 
+ \textbf{Deadlines}
+ \begin{itemize}
+  \item 
+  Progress Report Deadline -- 31st January, 12 noon.
+ \end{itemize}
+ 
+ \item 
+ \emph{1st February -- 14th February}
+ \begin{itemize}
+	\item begin evaluating results of experiments on unnormalised algorithms
+	\item conduct experiments to evaluate performance change due to normalisation 
+ 	\item prepare progress report presentation
+ \end{itemize}
+ 
+ \textbf{Deadlines}
+ \begin{itemize}
+  \item 
+  Progress Report Presentations -- 6th, 7th, 10th, 11th February, 2 PM.
+ \end{itemize}
+ 
+ \item 
+ \emph{15th February -- 28th February}
+ \begin{itemize}
+	\item complete performance evaluation
+	\item reach  verdict about statistical significance of results
+ \end{itemize}
+ 
+ \item 
+ \emph{29st February -- 13th March}
+ \begin{itemize}
+	\item allow time to ensure that success criteria have been met
+	\item consult with project supervisors on best continuing work (e.g.\ which of the 
+	potential extensions would now be best approached)
+ \end{itemize}
+ 
+ \item 
+ \emph{14th March -- 27th March}
+ \begin{itemize}
+	\item carry out further work according to supervisor consultation
+	\item complete first chapters drafted in slot \ref{measuredev}
+ \end{itemize}
+ 
+ \item 
+ \emph{28th March -- 10th April}
+ \begin{itemize}
+	\item write evaluation and conclusion chapters
+	\item continue and complete any work that is yet to be completed
+ \end{itemize}
+ 
+ \item 
+ \emph{11th April -- 24th April}
+ \begin{itemize}
+	\item complete draft dissertation
+	\item revise details of work to improve overall quality of dissertation and ensure 
+	consistency in dissertation
+ \end{itemize}
+ 
+ \item 
+ \emph{25th April -- 8th May}
+ \begin{itemize}
+	\item allow for time to complete any remaining work in case this timeline has not been 
+	accurate
+	\item submit dissertation as early as possible to allow transition to revision
+ \end{itemize}
+ 
+ \textbf{Deadlines}
+ \begin{itemize}
+  \item 
+  Dissertation Deadline -- 8th May, 12 noon.
+  \item
+  Source Code Deadline -- 8th May, 5 PM.
+ \end{itemize}
+\end{enumerate}
+
+\section*{Resources Declaration}
+	For the programming work to be done, I intend to use my own personal laptop. This has an
+	Intel i7-7700HQ 4.0 GHz processor as well 16 gigabytes of random-access memory. To guard 
+	against the case that my personal machine fails I shall back up all my work, including any 
+	progress on the dissertation, using version control via GitHub, and regular commits to the 
+	working repository. \\
+	Should my computer thus fail, I should be able to transition fairly smoothly to the 
+	machines provided by the managed cluster service (MCS). \\
+	Experiments will be constructed, and any code required, using MatLab, a license for which
+	the University provides me with; any graphs that need to be visualised will be visualised 
+	using either MatLab or GePhi. \\
+	Should the development of a model for random graphs fail, publically available real-world 
+	data sets (yielding directed graphs) will be sampled to generate test benches for the 
+	project instead of random graphs generated from an original random model.
+\printbibliography
+
+\end{document}
