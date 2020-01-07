@@ -1,0 +1,46 @@
+\chapter{Introduction}
+
+Graph clustering is a common task in unsupervised machine learning.
+
+Given a graph $G = (V, E)$, it is finding a partition of its vertex set $V$ such that vertices are 
+grouped into communities (or `clusters') that maximise some notion of 
+similarity. It is an important in unupervised machine learning since it can 
+reveal underlying meta-graphs in real-world networks that could serve as an abstraction
+of the graph or can reveal previously unknown families of elements of the network.
+
+In simple, undirected graphs, this notion of similarity is usually taken to be some 
+measure of well-connectedness, for example the conductance of the resulting partition. In that 
+setting, the problem is well-understood due to the rather simple formulation of what makes nodes 
+similar. 
+
+However, the same problem is inherently much harder when considering directed graphs (digraphs), 
+as the notion of node similarity becomes less clear. One approach to handling digraphs is ignoring 
+edge directionality, effectively reducing the problem to its easier relative. This is not 
+satisfactory in most cases as the significance of an edge within a network can be drastically 
+impacted by its direction. For example, in a digraph modelling trade between various nations, it 
+becomes crucial to the information conveyed by the graph, and reasonable notions of what makes a 
+nation similar to another economically, which direction trade occurs in. In full generality, by 
+removing edge directions, information is lost leading to generally sypeaking weaker clustering 
+results. 
+
+Therefore, an alternative way of dealing with digraphs needs to be developed, together with an 
+alternative notion of vertex similarity in a directed setting. In general, therefore, instead of
+well-connectedness, communities in digraphs are determined by either similar sending or receiving 
+patterns of their nodes. When applied to the example of international trade, this would mean 
+countries with a tendency to export to some particular nation whilst importing from another might 
+be clustered together. \\\ 
+
+These notions of similarity have to be captured by the representation that is used for the graph 
+in the clustering algorithm. In particular, algorithms using the spectrum of some construction on 
+the graph's adjacency matrix (known as \emph{spectral} algorithms) derive the detailed 
+representation of the input graph through the notion of similarity they intend to focus on in 
+particular. Two particular such algorithms have recently been developed, with slightly different 
+intents. These algorithms' developers have also introduced their own random-graph models with 
+configurable directional communities that were used to develop and test the clustering algorithms.
+
+These graph models exhibit a flaw, however. In the real world, many networks exhibit heterogeneous 
+distributions of the (in-/out-)degrees of their nodes, while the models developed in previous 
+research have rather homogeneous degree distributions. Using spectral-clustering algorithms on 
+graphs with irregular degree distributions exhibits a significant performance hit in the undirected 
+setting, so regularistation techniques have been applied to such irregular unirected graphs to
+remedy this; as such similar techniques may be applicable to digraphs for the same purpose as well.

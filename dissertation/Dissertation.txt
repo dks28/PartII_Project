@@ -1,0 +1,317 @@
+Chapter 1
+
+Preparation
+In this chapter, I first develop the background of the computational problem of clustering
+directed graphs using spectral methods, by further explaining the well-studied methodology applicable to undirected graphs. Next, I introduce the two algorithms that have
+been developed to solve the problem, and describe how their respective methodologies
+contribute to this aim. Furthermore, I elaborate on the random-graph models that have
+been developed in conjunction with these algorithms, and how their usage for testing the
+algorithms is not entirely representative of real-world problems, which will help explain
+and justify the interest behind this project. Finally, I will discuss what requirements
+this project faced, as well as what the starting point for it was.
+
+1.1
+
+Clustering
+
+This project concerns itself with one specific clustering problem. In general, however,
+clustering is applicable to many more kinds of data than just graphs, for which many
+different algorithms have been developed to suit different needs. Perhaps the most common algorithm that clusters general, m-dimensional data is Lloyd’s k-means clustering
+algorithm.
+
+1.1.1
+
+k-Means Clustering
+
+Lloyd’s k-means clustering algorithm is very widely used and fairly straightforward to
+understand. Given a set D of points in m dimensions, and an integer k, it returns
+the centroids of k clusters which partition D, such that the distances of points to their
+assigned centroids are locally minimised. It is presented in Algorithm 1.
+It is, of course, important to note that the clusters returned by Lloyd’s algorithm
+are only locally optimal. This, however, can be counteracted by running the algorithm
+several times with different initialisations of the centroids. Lloyd’s algorithm operates
+on general data, and by terminating the algorithm at approximate, instead of absolute
+convergence or after a fixed number of iterations yields a reasonably fast run-time for
+the generally speaking NP-hard computational problem.
+
+1
+
+CHAPTER 1. PREPARATION
+Algorithm 1: Lloyd’s k-Means Clustering
+require: Set D of m-dimensional coördinates, integer k
+yield : Set C of centroids of k clusters underlying data in D.
+1
+
+2
+3
+
+4
+5
+6
+7
+
+begin
+// Initialise centroids to arbitrary members of D
+C ←− random_choice (k, D);
+while set C has not converged do
+// Find data-centroid assignments
+C ←− {c 7→ ∅ : c ∈ C};
+foreach d ∈ D do
+c := arg minp∈C (∥p − d∥2 );
+C(c) ←− C(c) ∪ {d};
+end
+// Update positions of centroids to average of their
+respective clusters
+∑
+C ←− { d∈C(c) d/|C(c)| : c ∈ C};
+
+8
+
+9
+
+end
+return C
+
+10
+11
+12
+
+end
+
+These properties of Lloyd’s algorithm mean that it would be convenient to use it as
+a basis for algorithms clustering the vertices of a graph. To this end, one can consider a
+particular representation of an undirected graph known as its Laplacian.
+
+1.1.2
+
+Spectral Methods
+
+Undirected Graphs And Their Laplacians
+So, consider some undirected graph G = (V, E) with adjacency matrix A. Suppose that
+|V | = n such that A is of dimension n × n, and notice that A is symmetric since G is
+undirected. Now, consider the diagonal matrix D that has Di,i = di , where di is the
+degree of vertex i ∈ V . Now, considering the construction
+
+L := D − A,
+
+the Laplacian of G, we note that L is still symmetric. This means that the eigenvalues associated to its eigenvectors are all real. Indeed, suppose that G is disconnected
+with k connected components. Then consider, for any one (say G1 ) of these connected
+
+2
+
+1.1. CLUSTERING
+components the vector e defined by ei = 1[i ∈ G1 ]. Then we have
+(L × e)i = (D × e)i − (A × e)i
+∑
+= di ei −
+Ai,v · ev
+v∈V
+
+= di 1[i ∈ G1 ] −
+
+∑
+
+1[i ⇝ v] · 1[v ∈ G1 ]
+
+v∈V
+
+where the first term will either be zero, should i ∈
+/ G1 , or the degree of i otherwise. The
+second term will also be zero when i ∈
+/ G1 , since i ⇝ v and i ∈
+/ G1 imply v ∈
+/ G1 , i.e.
+1[v ∈ G1 ] = 0. Otherwise, the summand in the second term will be 1 whenever i ⇝ v,
+that is, the second term will be di . Thus, L × e = 0, the zero vector. In other words, the
+vector e is an eigenvector of L with eigenvalue 0, and since such a vector can be defined
+for each connected component of G, the algebraïc multiplicity of 0 in the characteristic
+polynomial of L is equal to the number of connected components in G1 .
+Spectral Clustering
+In the setting of undirected graphs, the notion of similarity between two graph vertices
+is roughly equivalent to the question of how well-connected the vertices are. In the
+extreme, consider the case where we wish to find k clusters of graph nodes, and suppose
+again that the graph happens to have exactly k connected components. Then, with our
+notion of vertex similarity, the k clusters found by a reasonable algorithm should return
+the connected components of the graph. Therefore, consider the eigenpairs (λi , ei ) of the
+Laplacian in this scenario, where |λ1 | ≤ |λ2 | ≤ . . . ≤ |λn |. We know that ∀1 ≤ i ≤ k,
+λi = 0 and for all other i, λi ̸= 0. Hence, by choosing the eigenvectors corresponeding to
+the lowest k eigenvalues, consider the n k-dimensional points p1 . . . pn obtained by setting
+(pj )i = (ei )j . These points will form the k canonical basis vectors for k dimensions, for
+any two vertices u, v in the same connected component of G will lie on the same point,
+meaning that Lloyd’s algorithm will clearly quickly recover the connected components
+very quickly.
+In the more general setting where the number of connected components is lower than
+the number of desired clusters (and, most commonly, where the graph is connected),
+intuitively it could be argued that this method would not work. However, it should
+be noted that Davis and Kahan established in 1969 that modifying a matrix insignifcantly does not perturb the space spanned by its eigenvectors significantly. This has the
+following significance for graph clustering: If we consider any graph to have an underlying, disconnected graph with k connected compoonents, which has been modified by
+adding (or perhaps removing) noisy edges, then the original disconnected graph (which
+we can take to be our desired clustering) can be recovered by applying the method described above to the Laplacian of the noisy graph (that is, by considering the bottom k
+eigenvectors, ordered by eigenvalue magnitude).
+1
+
+Strictly speaking this finds a lower bound on the number of eigenvectors with eigenvalue 0, but
+establishing the same upper bound is not difficult.
+
+3
+
+CHAPTER 1. PREPARATION
+This method is known as the spectral clustering algorithm for graphs (the relevant
+etymon being the spectrum of the Laplacian). It works because the Laplacian captures
+the important information about node connectivity, and so do its eigenvectors. However,
+it relies on the fact that the eigenvalues of the laplacian are real, which was guaranteed
+by the fact that the Laplacian is symmetric. This foreshadows one of the difficulties with
+spectral clustering methods for directed graphs, the adjacency matrices of which are not
+symmetric.
+
+1.1.3
+
+Directional Communities and Clustering
+
+Besides the difficulty mentioned above, the problem of clustering directed graphs according to vertex similarity suffers another impairment: The notion of what made vertices
+of undirected graphs was simple enough, and made for an easy way of representing the
+graph in a format amenable to Lloyd’s algorithm. However, since directed graphs have
+no equivalent notion of connectivity, this notion can no longer be used in this setting.
+This raises the question of how one should think about communities in directed graphs.
+Directional Communities
+A first, simplistic, approach to remedying these issues is to remove the directional information from the graph and proceed by clustering it exactly as before. However, this
+misses the point of the task at hand. Consider, for example, a network that represents
+global trade. By removing the information of what directions goods flow in, we could
+not obtain clusters that take into account exporting and importing nations, attributes
+which should be of particular interest when considering what makes different countries
+similar with respect to trade.
+Instead of the extent of connectedness between two groups of vertices, therefore, a
+notion of ‘directional communities’ emerged, in which the interactions between nodes of
+different commmunities became important, rather than the interactions of nodes within
+one cluster. This is particularly interesting when considering bipartite graphs. Consider
+for example a data set detailing the membership of a set of words in a set of texts, and
+the graph representing this membership relation. One can measure the similarity of texts
+by the words they contain, or the similarity of words by the texts in which they occur.
+Thus clustering the graphs by keeping in mind the sending and receiving behaviours of
+nodes allows for helpful insights in machine learning.
+The DiSim Algorithm
+This project considers two main algorithms that have been developed to deal with such
+directional communities. The first of these was developed by Rohe et al. ; called DiSim.
+It is a fairly light modification of the classical spectral clustering algorithm, in tterms of
+the constructions it uses to cluster the graph.
+The algorithm first construct a so-called ‘regularized graph Laplacian’, which, given
+
+4
+
+1.1. CLUSTERING
+the adjacency matrix A, defined as
+L := O− /2 × A × P − /2
+1
+
+1
+
+where O and P are diagonal matrices storing each node’s out- and in-degree respectively,
+offset with a parameter τ that defaults to the average out-degree. From this construction,
+it computes, instead of the eigenvectors of this Laplacian (which would not correspond to
+real eigenvalues, and so could not be ordered), the left and right singular vectors which
+record the sending and receiving behaviours of the graph’s nodes, respectively.
+The singular vectors correspond to singular values which behave analogously to the
+eigenvalues from before, but in DiSim, the ‘top’ singular vectors are selected to base a
+clustering upon. This is because of the slightly differeent construction of L in this case
+than L before. Another modification this algorithm makes is that it allows its user to
+cluster directed graphs particular with respect to ‘sending’ or ‘receiving communities’ in
+the case of bipartite graphs such as the word-text-membership example from before.
+However, when the graph is not bipartite, the algorithm can be modified only slightly
+to produce a clustering that takes into account both sending and receiving patterns by
+combining the right and the left singular vectors. It is this use case that this project
+focusses on in particular, since it allows for direct comparison to another algorithm
+developed exclusively for that purpose by Cucuringu et al.
+Hermitian Spectral Clustering
+In the development of this next algorithm (which I shall call Herm), another approach
+was taken that actually preserves the benefit of having real eigenvalues to work with. This
+approach was to represent the graph, instead of by a real adjacency matrix, by a complexvalued one. It is presented in Algorithm 2. This approach allows the preservation of the
+directional information whilst also retaining a simple representation of the graph.
+Algorithm 2: Hermitian Spectral Clustering (Herm)
+require: Adjacency Matrix A of graph G, integer k, ϵ ∈ R+
+yield : Partition of G into directional communities
+
+1
+2
+
+3
+4
+
+// Compute Hermitian representation of G
+AHerm := ı · A − ı · AT ;
+{(λi , ei )} ←− those eigenpairs of AHerm such that |λi | > ϵ;
+// Eigenvectors are complex, however, so represent graph as real
+data
+∑
+P ←− i ei × eH
+i ;
+return Result of applying Lloyd’s algorithm to the rows of P , with k clusters
+
+√
+A few comments: Here, ı denotes the imaginary unit; ı := −1. Given a matrix X,
+its transpose is denoted X T and its conjugate transpose X H . Lastly, the matrix P that
+is constructed as part of the algorithm is actually real, which is guaranteed by properties
+of AHerm that are not essential to understanding the algorithm.
+
+5
+
+CHAPTER 1. PREPARATION
+To get a better understanding of why this works, consider an alternative definition
+of AHerm :
+
+
+ı
+i⇝j
+
+
+(AHerm )i,j := −ı j ⇝ i
+
+
+
+0
+otherwise.
+Therefore, A2Herm can be written as follows:
+(A2Herm )i,j =
+
+∑
+
+Ai,l · Al,j
+
+l
+
+=
+
+∑
+
+ı · (1[i ⇝ l] − 1[l ⇝ i]) · ı · (1[l ⇝ j] − 1[j ⇝ l])
+
+l
+
+=
+
+∑
+∑
+(1[i ⇝ l] · 1[j ⇝ l] + 1[l ⇝ i] · 1[l ⇝ j]) −
+(1[i ⇝ l] · 1[l ⇝ j] + 1[l ⇝ i] · 1[j ⇝ l])
+l
+
+l
+
+which means that the matrix A2Herm counts the number of nodes that are either common
+parents or common children of i and j whilst discounting nodes that have differently
+oriented connections to i and j, respectively. Since AHerm has the same eigenvectors as
+A2Herm , AHerm also implicitly tracks this. This is why taking the top eigenvectors of this
+matrix is the right choice, as opposed to the bottom eigenvectors as used in the typical
+spectral clustering algorithm.
+To provide a baseline to compare these algorithms against, one can consider basic
+modifications to the graph’s adjacency matrix A which explicitly track the qualities of a
+graph in a similar way as AHerm such as the matrices
+• AT × A, which tracks the number of common parents of nodes i, j,
+• A × AT , which tracks the number of common children of nodes i, j or
+• their sum, which tracks both, very similarly to the matrix AHerm . However, it
+should be noted that it does not penalise nodes with opposite sending/receiving
+connections to i, j respectively, and is much more expensive to calculate since
+matrix multiplication is required.
+
+6
+
+
