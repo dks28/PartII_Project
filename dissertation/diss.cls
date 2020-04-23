@@ -2,8 +2,12 @@
 \ProvidesClass{diss}[2019/12/23]
 
 \LoadClass[11pt, twoside, openright]{book}
+\RequirePackage{graphicx}
 
+\RequirePackage[hidelinks]{hyperref}
+\RequirePackage{subcaption}
 \RequirePackage{siunitx}
+\RequirePackage{censor}
 \RequirePackage{enumerate}
 \RequirePackage{mathtools}
 \RequirePackage{amsmath}
@@ -11,18 +15,24 @@
 \RequirePackage{xfrac}
 \linespread{1.2}
 \RequirePackage{amsthm}
+\RequirePackage{greekletters}
 
 \RequirePackage{tikz-qtree}
 
 \RequirePackage{tikz}
 \RequirePackage{tkz-graph}
 \usetikzlibrary{arrows}
+\usetikzlibrary{shadings}
+\usetikzlibrary{arrows.meta}
 \RequirePackage[utf8]{inputenc}
-\RequirePackage[a4paper, bindingoffset=1.25cm, top=2.5cm, right=2.5cm, left=2.5cm, bottom=3cm, footskip=1.5cm]{geometry} 
+\RequirePackage[a4paper, bindingoffset=1cm, top=2.5cm, right=2cm, left=2cm, bottom=3cm, footskip=1.5cm]{geometry} 
 \RequirePackage{fancyhdr}
 
-\RequirePackage{graphicx}
 \RequirePackage{listings}
+\lstset{
+extendedchars=\true,
+inputencoding=utf8x
+}
 \RequirePackage[export]{adjustbox}
 \RequirePackage{longtable}
 \RequirePackage{supertabular}   % Page breaks within tables
@@ -30,11 +40,13 @@
 \RequirePackage{multirow}       % Allows table cells to span rows
 \RequirePackage{hhline}         % Horizontal lines in tables
 
-\RequirePackage[ruled, lined, linesnumbered]{algorithm2e}
+\RequirePackage{floatrow}
+
+\RequirePackage[ruled, lined, linesnumbered, noend]{algorithm2e}
 
 \RequirePackage{lipsum}
 
-\graphicspath{ {./figures/} }
+\graphicspath{ {../src/figures/} }
 
 \RequirePackage{array}
 \newcolumntype{L}[1]{>{\raggedright\let\newline\\\arraybackslash\hspace{0pt}}m{#1}}
@@ -94,19 +106,24 @@
 	\renewcommand{\footrulewidth}{0pt}
 }
 
+
 \pagestyle{fancypage}
 
-%\renewcommand{\maketitle}{%
-%	\thispagestyle{empty}%
-%	\begin{center}%
-%		\ \\\ \\\ \\\ \\%
-%		\LARGE \coursename\\\ \\\ \\\ \\%
-%		\large A \coursetype in\\ Part II of the Computer Science Tripos%
-%		\\\ \\\ \\\ \\\ \\\ \\\ \\\ \\\ \\\ \\\ \\\ \\\ \\\ \\\ \\%
-%		\footnotesize Notes by\\ Daniel Sääw,\\ St Catharine's College%
-%	\end{center}%
-%	\clearpage\thispagestyle{empty}\ \clearpage
-%}
+\renewcommand{\maketitle}{%
+	\thispagestyle{empty}%
+		\begin{flushright} \textbf{\author}\\
+		\textit{\crsid}\end{flushright}\ \\\ \\\ \\\ \\\ \\\ \\
+	\begin{center}%
+		{\LARGE \title}\\\ \\\ \\\ \\
+		\textit{A Dissertation In} \\\ \\
+		{\Large Part II \textit{of the} Computer Science Tripos}\\\ \\
+		\textit{Submitted In}\\\ \\
+		{\Large \year}\\\ \\	
+		\textit{By A Member Of}\\\ \\
+		{\Large \college}
+	\end{center}%
+	\clearpage\thispagestyle{empty}\ \clearpage
+}
 
 \let\origdoublepage\cleardoublepage
 \newcommand{\clearemptydoublepage}{%

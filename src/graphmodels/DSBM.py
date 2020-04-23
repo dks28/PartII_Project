@@ -1,18 +1,19 @@
 import numpy as np
 import numpy.random as rand
 from scipy.sparse import csr_matrix
+from tqdm import tqdm as tqdm
 
-def sample(k, n, p, q, F, random_state=None, Herm=True):
+def sample(k, n, p, q, F, random_state=None, Herm=False):
 	if not (random_state == None):
 		rand.seed(random_state)
-	assert (F.shape == k, k) 
+	assert F.shape == (k, k) 
 	assert k >= 2 
 	assert abs(p-0.5) <= 0.5 
 	assert abs(q-0.5) <= 0.5
 	assert np.all(F + F.T == 1)
 	N = k * n
 	res = np.zeros((N,N), dtype=complex)
-	for c in range(k):
+	for c in tqdm(range(k)):
 		for d in range(c,k):
 			prob = p if c == d else q
 			cd_ns = rand.rand(n,n) <= prob
@@ -30,3 +31,29 @@ def sample(k, n, p, q, F, random_state=None, Herm=True):
 	# Need to return both adjacency matrix and the underlying clusters.
 	clusters = np.reshape(np.arange(N), (k,n))
 	return res, clusters
+
+def cycle(k, η):
+	F = 0.5 * np.ones((k,k))
+	for i in range(k):
+		F[i, (i+1) % k] = 1 - η
+		F[i, (i-1) % k] = η
+	return F
+
+def random_complete(k, η, random_state=None):
+	if random_state != None:
+		rand.seed(random_state)
+	dirs = rand.rand(k,k) < 0.5
+	tmp1 = dirs * (1 - η)
+	tmp2 = (1 - dirs) * η
+	F_upper = np.triu(tmp1 + tmp2, 1)
+	diag = np.diag(0.5 * np.ones(k))
+	F_lower = np.tril(1 - F_upper.T, -1)
+	F = F_upper + diag + F_lower
+	return F
+
+def line(k, η):
+	F = 0.5 * np.ones((k, k))
+	for i in range(k):
+		F[i, i+1:] = 1 - η
+		F[i+1:, i] = η
+	return F

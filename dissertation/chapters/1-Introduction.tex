@@ -1,15 +1,17 @@
+%\usepackage[backend=biber]{biblatex}
+
 \chapter{Introduction}
 
 Graph clustering is a common task in unsupervised machine learning.
 
 Given a graph $G = (V, E)$, it is finding a partition of its vertex set $V$ such that vertices are 
 grouped into communities (or `clusters') that maximise some notion of 
-similarity. It is an important in unupervised machine learning since it can 
-reveal underlying meta-graphs in real-world networks that could serve as an abstraction
-of the graph or can reveal previously unknown families of elements of the network.
+similarity \cite{jain1988algorithms}. It is important in unupervised machine learning since it can 
+reveal underlying structures in networks that could serve as abstractions of the graph or reveal 
+previously unknown families of elements of the network.
 
 In simple, undirected graphs, this notion of similarity is usually taken to be some 
-measure of well-connectedness, for example the conductance of the resulting partition. In that 
+measure of well-connectedness, for example the conductance of the resulting partition \cite{conductance}. In that 
 setting, the problem is well-understood due to the rather simple formulation of what makes nodes 
 similar. 
 
@@ -36,11 +38,11 @@ the graph's adjacency matrix (known as \emph{spectral} algorithms) derive the de
 representation of the input graph through the notion of similarity they intend to focus on in 
 particular. Two particular such algorithms have recently been developed, with slightly different 
 intents. These algorithms' developers have also introduced their own random-graph models with 
-configurable directional communities that were used to develop and test the clustering algorithms.
+configurable directional communities that were used to develop and test the clustering algorithms \cite{lucapaper, disimpaper}.
 
 These graph models exhibit a flaw, however. In the real world, many networks exhibit heterogeneous 
 distributions of the (in-/out-)degrees of their nodes, while the models developed in previous 
 research have rather homogeneous degree distributions. Using spectral-clustering algorithms on 
 graphs with irregular degree distributions exhibits a significant performance hit in the undirected 
 setting, so regularistation techniques have been applied to such irregular unirected graphs to
-remedy this; as such similar techniques may be applicable to digraphs for the same purpose as well.
+remedy this; as such similar techniques may be applicable to digraphs for the same purpose as well \cite{rohereg, binyureg}.

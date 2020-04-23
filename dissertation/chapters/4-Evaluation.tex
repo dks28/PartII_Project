@@ -1,0 +1,460 @@
+\chapter{Evaluation}
+
+In this chapter, I explore the successes of the work done in the Implementation chapter. This will 
+include verifying that $\mathrm{DSBM}_\mathrm{PA}$ satisfies the criteria postulated 
+initially, as well as verifying that my implementations of the clustering algorithms function as expected. The main body of this chapter will then serve to 
+evaluate the outcomes of the experiments described in the previous chapter, determining the effect 
+that skewed degree distributions have on the clustering algorithms and finally determining the applicability of the mentioned regularisation 
+techniques to the directed-clustering setting.
+
+\section{Heterogeneous Digraphs}
+
+To assess the success of the Directed Stochastic Block-Model with Preferential Attachment, recall 
+that it is a generalization of a previous model developed by Price. My model degenerates to Price's
+ model when setting $k=1$. Now, it is possible %TODO: insert reference to Newman
+to show that in Price's, as the number of vertices grows large, the distribution of degrees 
+follows the following tail distribution for in-degree $Q$:
+
+$$
+\lim_{N \rightarrow \infty}\left(\mathbb P(Q \geq q)\right) = 
+\frac{\Beta(q+a, 1+\sfrac ac)}{\Beta(a, 1 + \sfrac ac)}
+$$ 
+
+where $c$ and $a$ are as in the definition for $\mathrm{DSBM}_\mathrm{PA}$ and $\Beta(\cdot, \cdot)$ is the 
+beta-function. Now, the more 
+general structure of the $\mathrm{DSBM}_\mathrm{PA}$ than that of Price's model means that we 
+cannot in general derive the same for $\mathrm{DSBM}_\mathrm{PA}$, though we find that, 
+empirically, graphs sampled from $\mathrm{DSBM}_\mathrm{PA}$ exhibit a similar degree distribution 
+using meta-graphs described in the previous chapter. These empirical distributions are shown in 
+Fig.\ \ref{fig:empdist}.
+
+\begin{figure}
+\begin{center}
+\includegraphics[width=\textwidth]{empdist.pdf}
+\end{center}
+\caption{Empirical in-degree distributions (red scatter-plots) observed in 
+$\mathrm{DSBM}_\mathrm{PA}$, for $c=10$ and different 
+values of $a$, as compared to theoretical distribution in Price's classical model (black line).}
+\label{fig:empdist}
+\end{figure} 
+
+Clearly, Fig.\ \ref{fig:empdist} shows that the model does exhibit a tail-heavy degree 
+distribution (dependent on $a$), as desired. Furthermore, the second requirement, the ability of 
+specifying directed communities using the parameters to this model, is satisfied because of the 
+following argument: sampling a graph with underlying communities $(G, \mathcal{C}) \sim 
+\mathrm{DSBM}_\mathrm{PA}(N, k, c, \mathbf{p}, \mathbf{C}, a)$ where the parameter $\mathbf{C}$ 
+has been derived as in the conversion of DSBM-parameters to $\mathrm{DSBM}_\mathrm{PA}$-parameters 
+(and where $\mathbf p$ is uniform) described in the previous chapter degenerates to sampling from 
+the DSBM with corresponding parameter $\mathcal{F}$, and some values for $p,q$, as $a$ grows large. 
+This means that if $a$ is sufficiently large, such directed communities may be specified as 
+required. However, note now that $a$ only influences the tail distribution, and the notion of 
+directed communities is based on the imbalance in edge directions between clusters, without the 
+target nodes within each cluster affecting this community structure. Hence, even if any edges' 
+target nodes within clusters had been picked differently, the directed communities would have 
+remained present and unchanged. This means that for any value of $a$, there is a value of each 
+other parameter to the $\mathrm{DSBM}_\mathrm{PA}$ such that sampled graphs will have a 
+corresponding community structure as graphs sampled from the homogeneous DSBM with some parameter 
+$\mathcal F$, as required.
+
+\section{Code Correctness}
+
+This section will present short demonstrations that the code written in the scope of this project 
+was correct, in the sense that my implementations of DiSim and Herm are capable of recovering 
+directional communities as they were designed to do. The nature of these algorithms as consisting 
+mainly of a few high-level steps, each of which is provided by implementations in standard 
+libraries mean that the correctness of the implementation is fairly easy to guarantee assuming the 
+algorithms themselves work as desired. Therefore, I will demonstrate that the algorithms indeed 
+produce constructions that lend themselves to recovering the directed communities in a spectral 
+manner.
+
+\begin{figure}
+	\floatbox[{\capbeside\thisfloatsetup{capbesideposition={right,center},capbesidewidth=.45\textwidth}}]{figure}[\FBwidth]{
+	\caption{The 3D-values of the singular vectors for each of the 4500 vertices in the toy 
+	graph. The underlying communities are outlined in colour.}
+	\label{fig:toygrres}
+	}
+	{
+	\includegraphics[height=5cm]{toygrsingvals.pdf}
+	}
+\end{figure}
+
+%To this end, please consider a toy graph generated from the DSBM with cyclic meta-graph (without 
+%the presence of noise), $p=0.1$ and $q=0.9$. Such a graph is illustrated in Fig.\ \ref{fig:toygr}. 
+%The subsequent figure, Fig.\ \ref{fig:toygrres} shows the clustering results of both DiSim and Herm on 
+%this graph, as well as the values of the singular vectors found in DiSim for each of the vertices. 
+%Given that plot, it becomes obvious that that the algorithms do work in the presence of clear 
+%directed communities since it is easily possible to perform the clustering by hand given the 
+%singular-vector values. The eigenvectors found in Herm also allow a similar result but are complex-%
+%valued and thus do not lend themselves to as easy visualization.
+
+So, consider a graph of 3 clusters comprising 1500 nodes each, sampled with a cyclical meta-graph
+with $\eta=0.1, p=0, q=0.1$. Such graphs should be an easy task for functioning algorithms. Fig.\ 
+shows the data that Lloyd's algorithm clusters in DiSim given one such graph\footnote{The data 
+would be higher-dimensional in Herm, so less easily visualizable}, and makes clear that these 
+algorithms and my implementations work since the clustering could be done flawlessly by hand for 
+these graphs. Indeed, both Herm and DiSim achieve an ARI-score of 1.0 for this graph.
+
+\section{Experiments Concerning Algorithm Performance}
+
+In this section, I present the results of a series of experiments as describe in the final section 
+of Chapter 3. That is, I delve into the performance of Herm and DiSim for the heterogeneous graphs 
+with directional communities as sampled from $\mathrm{DSBM}_\mathrm{PA}$ with different families 
+of underlying meta-graphs and, where possible, lending a performance baseline provided by the 
+homogeneous graphs sampled from the standard DSBM.
+
+In these results, I also consider the variation in performance on graphs sampled along a range of 
+values for some subset of the relevant hyperparameters, my choices of the values of these are 
+explained in the upcoming subsections. In general, it is of interest to attempt clustering dense 
+graphs which reflect real-world networks better. Thus, values for (e.g.) the parameters $p, q$ in 
+the DSBM usually exceed the connectivity threshold of $p \approx \sfrac {\ln N} N$ in Erd\H{o}s-%
+R\'enyi graphs. Similarly, the parameter $a$ in $\mathrm{DSBM}_\mathrm{PA}$ has to vary with the 
+density in order to maintain a consistent tail-heaviness in the in-degree distribution. Thus, 
+whenever a graph was sampled from $\mathrm{DSBM}_\mathrm{PA}$, the value for $a$ was chosen 
+proportionally to the current value of $c$.
+
+A second decision to note is the choice of clustering `mode' used in DiSim, based on the selection 
+of using either the right or the left singular vectors for the application Lloyd's algorithm. 
+Since the communities in the $\mathrm{DSBM}_\mathrm{PA}$ are specified in a sending manner, I 
+therefore chose the left singular vectors of the regularised Laplacian for these experiments, 
+which correlate more with the sending behaviour of individual nodes.
+
+Finally, to clear up the experimental set-up, the reader should note that each experiment 
+$\text{was run a number of times using graphs sampled from the graph models independently}$ and in an
+identically 
+distributed manner. To achieve this, a series of random seeds was used to guarantee the 
+replicability of my results. As will be apparent, most experiments then exhibited very low 
+variations in performance.
+
+\subsection{Unregularised Algorithms' Performance for Heterogeneous Graphs}
+
+The first half of experiments I conducted explored how the basic versions of these algorithms 
+perform on networks of different structures (meta-graphs). As described in the previous chapter, 
+these meta-graphs were (1) randomly oriented, complete meta-graphs, (2) noisy cyclical meta-graphs 
+as specifiable in the DSBM, (3) a cleaner version only specifiable in $\mathrm{DSBM}_\mathrm{PA}$ 
+and (4) a tree structure. For each of these structures, the parameters $\mathcal F$ and $\mathbf C$
+ for the DSBM and the $\mathrm{DSBM}_\mathrm{PA}$, respectively, were generated with different 
+degrees of noise, and the progression of the algorithms' performance recorded. Also as described 
+previously, in figures juxtaposing the performances of the algorithms for graphs with reference to 
+both random-graph models, the parameterisations were picked for the DSBM initially, then for 
+$\mathrm{DSBM}_\mathrm{PA}$ by using the conversions for corresponding parameters.
+
+Each following graph records how the average observed performance of each of the algorithms 
+degrades as the noise parameter $\eta$ as described in the pervious chapter increases. At each 
+data point, an error bar has been added showing two standard deviations' worth around the mean 
+(observing that the ARI is bounded by 1), i.e.\ reporting a 95\%-confidence interval for the 
+performance under those circumstances under the assumption that the performance is normally 
+distributed.
+
+\subsubsection{Complete Meta-Graph}
+
+The most basic meta-graph under consideration, ROCMG, was considered for $k=5$ clusters, with 
+20000 vertices in total. The experiments were 
+conducted for a series of values of $p$ (the probability of any pair of vertices being connected) 
+in the parameterisation of the DSBM, the corresponding value of $q$ was always set to have $q=p$. 
+This guarantees (for these experiments) that the information about underlying communities is 
+solely in the edge directions, not the edge densities in particular subgraphs.
+
+\begin{figure}
+\begin{center}
+\includegraphics[width=0.75\textwidth, center]{noisy_communication_complete_metagraph.pdf}
+\end{center}
+\caption{ARI-scores of clustering algorithms plotted against noise for both models of random 
+graphs, and different graph densities, for graphs with randomly-oriented complete meta-graph.}
+\label{fig:basicrocmg}
+\end{figure}
+
+\begin{figure}
+\begin{center}
+\includegraphics[width=0.75\textwidth, center]{noisy_communication_cyclic_metagraph.pdf}
+\end{center}
+\caption{ARI-scores of clustering algorithms plotted against noise for both models of random 
+graphs, and different graph densities, for graphs with noisy cyclical meta-graph.}
+\label{fig:basicnoiscyc}
+\end{figure}
+
+The results of these basic clustering experiments are reported in Fig.\ \ref{fig:basicrocmg}. The 
+obvious tendency that greater degrees of noise (as specified by the value of $\eta$ on the $x$-axes)
+ lead to worse algorithm performance was expected. It bears more relevance to this project that 
+these meta-graphs, in spite of theoretically carrying the most information since edges between 
+each pair of clusters carry information, are not in general good subjects for the directed 
+clustering algorithms in the face of highly heterogeneous degree distributions, as the ARI values 
+for graphs sampled from $\mathrm{DSBM}_\mathrm{PA}$ are much lower and approach $0$, the 
+value corresponding to random clustering, much more quickly than for graphs sampled from DSBM.
+
+\subsubsection{Noisy Cyclical Meta-Graph}
+
+For this meta-graph, the same range of values for $p$ was considered, again setting $q=p$ at each 
+step. Again, roughly 4000 vertices per cluster were used with $k=5$ clusters being considered. The 
+corresponding results are reported in Fig.\ \ref{fig:basicnoiscyc}.
+
+Immediately, we may again make the insights extracted from the ROCMG experiments, except that 
+these data provide confirmation of an earlier assertion: the greter extent of informative 
+communication in ROCMGs makes such graphs easier to cluster. Indeed, the algorithms seems 
+completely incapable 
+of recovering the underlying communities for these graphs as sampled from $\mathrm{DSBM}_\mathrm{PA}$, 
+for which the performance is not statistically distinguishable from random clustering performance. 
+However, at this point we can state for the first time a difference between the behaviours of Herm 
+and DiSim, respectively. Inspecting the results of these first two experiment stages, we can see 
+that Herm is somewhat more robust to noise than DiSim. This is expressed in the nature of the 
+ARI-graphs, as the performance of Herm seems to be a concave function of the noise parameter $\eta$
+ whereas the performance of DiSim seems to form a convex function of performance. This insight 
+comes from the data concerning homogeneous graphs for now, similar behaviour will be seen at later 
+times as well.
+
+\subsubsection{Cleaner Cyclical Meta-Graph}
+
+\begin{figure}
+\begin{center}
+\includegraphics[width=0.75\textwidth, center]{noisy_communication_cleaner_cycle.pdf}
+\end{center}
+\caption{ARI-scores of clustering algorithms plotted against noise parameter $\eta$ for various $k
+$ and different graph densities, for graphs with more cleanly cyclical meta-graph.}
+\label{fig:basiccleancyc}
+\end{figure}
+
+\begin{figure}
+\begin{center}
+\includegraphics[width=0.75\textwidth, center]{noisy_communication_binary_tree.pdf}
+\end{center}
+\caption{ARI-scores of clustering algorithms plotted against noise parameter $\eta$ for 
+ different graph densities, for graphs with meta-graphs resembling binary trees.}
+\label{fig:basictree}
+\end{figure}
+
+For the first of the two $\mathrm{DSBM}_\mathrm{PA}$-specific meta-graphs, instead of ranging 
+through values of $p$, I conducted experiments for a range of values for $c$ (the out-degree of 
+each node in the network) instead. Here, in addition, I show how the performance of Herm and DiSim 
+develops for different values of $k$. The results are reported in Fig.\ \ref{fig:basiccleancyc}.
+
+Immediately, the first interesting insight we should note is how Herm does not work for $k=3$, 
+while the performance improves drastically for $k=5$ and then even further for $k=7$, while the 
+performance of DiSim across the different numbers of clusters changes less (it only changes in 
+that the performance degrades less quickly with noise for DiSim the more clusters are present). 
+These results also confirm that in the setting where there is less communication between clusters 
+not directly adjacent in the cycle, directed clustering is much easier. However, it is noteworthy 
+that here, the skewed degree distribution does not necessarily break the algorithms.
+
+A second insight that can be made is that again, Herm is more robust to increasing degrees of 
+noise than DiSim, except in the case where $k=3$, i.e.\ where Herm does not work well at all.
+
+\subsubsection{Binary Tree Meta-Graph}
+
+For this meta-graph, I restricted the number of clusters to $k=7$, i.e.\ to a binary tree of 
+height 3. Here, the experiments conducted range through $\sigma$, the percentage of edges that one 
+of each node's children send to its sibling rather than its parent. In this sequence of 
+experiments, the time taken to perform the clustering in Herm would have taken significant periods 
+of time with the previous 4000 nodes per community, so instead the graphs sampled here comprised 
+only 3000 nodes per community.
+
+The results of the experiments, recorded in Fig.\ \ref{fig:basictree}, are slightly different to 
+the previous results in that the upper limits are lower, obtaining ARI-values of at most around 
+60\% instead of the near-perfect values previously. This might be related to the lower total 
+number of nodes per cluster, leading to a lower total information content. More likely, however, 
+is that certain communities are simply difficult to differentiate; suppose that communities $A$ 
+and $B$ are siblings, descendants of $P$. In addition, consider community $D$, the child of $B$ 
+that only communicates with $B$ in the meta-graph. Then if $A$ communicates with both $B$ and $P
+$,  individual nodes from $A$ may behave more similarly to those in $C$ if many of the edges 
+happen to go to $B$ instead of $P$, or may seem like coming from $B$ if most edges go to $P$. This 
+is certain to happen in a portion of nodes from $A$ if $\sigma$ is high or low respectively.
+
+General observations of these results confirm intuitive speculations: Again, with more edges, 
+performance generally improves and degrades less quickly. Interestingly though, we can also see 
+performance differences across the values of $\sigma$: With higher $\sigma$, the performance in 
+noiseless settings exceeds that for graphs of lower $\sigma$, however this performance is then 
+less stable in that it degrades quicker as noise increases. This is because of the requirement for 
+$\sigma$; the need for a statistical difference between sibling clusters---and the increased 
+effect of noise as the imbalance between destination clusters of edges increases.
+
+\subsubsection{Conclusions About Basic Algorithm Performance}
+
+In this section, we have seen the development of algorithm performance over a wide space of 
+parameterisations, answering the first of this project's central questions:
+
+In general, my findings show that these algorithms are indeed capable of recovering the underlying 
+communities when the graphs have highly skewed degree distributions, even in the face of some noise,
+ albeit less so than in graphs with generally homogeneous degree distributions. The algorithm 
+making use of a complex-valued representation of the input graph to exploit the same benefit of 
+real-valued eigenvalues as that of adjacency-matrix-symmetry in undirected spectral clustering 
+most commonly performs better, and as mentioned, remains more robust to noise. Thus the second goal of the project has been met, too, and we can move to the third and final one.
+
+\begin{figure}
+\begin{center}
+\includegraphics[width=0.75\textwidth, center]{cluster_internal_edge_density.pdf}
+\end{center}
+\caption{The performance of Herm and DiSim as the proportion of edges whose endpoints share a 
+cluster increases, for graphs with ROCMG.}
+\label{fig:intedgdens}
+\end{figure}
+\subsection{Experiments Concerning Cluster-Internal Edge Density}
+
+The first question brought up in the previous chapter with respect to a possible regularisation 
+technique was actually to do with the prevalence of edges remaining within a community, that 
+intuitively might have adverse effects on the informativeness of the edges about the meta-graph. 
+Fig.\ \ref{fig:intedgdens} shows how the performance of the clustering algorithms develops as this 
+value is increased. The two plots were constructed based on a ROCMG-graph of five clusters and no 
+additional noise, hence the high general performance. For the DSBM, we can see that DiSim remains 
+successful at recovering the communities even as the number of edges proceeding between clusters 
+decreases sharply. Meanwhile, the performance of Herm begins to degrade sharply as the number of 
+cluster-internal edges begins to outweigh that of edges between clusters. In fact, we can see that 
+while the performance of DiSim dips as the percentage of edges within clusters begins to decrease, 
+it recovers with even more edges within clusters.
+
+This effect may also be observed in graphs sampled from $\mathrm{DSBM}_\mathrm{PA}$, in which the 
+performance in general is, of course, lower. This means that for many kinds of real-world networks, 
+in which intra-cluster communication may be common as well, DiSim would make a better clustering 
+attempt than Herm, which again degrades completely in performance as the proportion of edges 
+between clusters reduces.
+
+However, I previously mentioned a possible way of extending Herm to account for this. By using 
+values of the form $r \pm \imath$ (normalised to have radius 1) instead of purely imaginary values 
+in the Hermitian graph representation, the clustering may have interpolated between directed and 
+undirected clustering. This `interpolation' effect is produced by using different values for $r$ 
+(as $r$ begins to dominate the imaginary part of the matrix entry, the clustering results should 
+get more and more similar to the undirected clustering), and the results of the corresponding 
+experiments, for a series of percentages of edges within clusters, are reported in Fig.\ 
+\ref{fig:intedginterp}. We can see that, in general, the variation of $r$ does not affect the 
+algorithms performance. The one exception, the case where 22.5\% of edges remained in one cluster, 
+and where the graph was sampled from the DSBM, the performance degraded for greatervalues of $r$. 
+This behaviour was observed for every graph generated under these parameters, whereas for all 
+other sets of parameters, no variation was observed at all, which is a strange phenomenon I am 
+unable to explain.
+
+\begin{figure}
+\includegraphics[width=0.9\textwidth, left]{cluster_internal_edges_interpolation.pdf}
+\caption{Evaluating the performance of the modified Herm trying to do simultaneously undirected 
+clustering as well as directed clustering.}
+\label{fig:intedginterp}
+\end{figure}
+
+\subsection{Introducing Self-Loops For Graph-Regularisation}
+
+The fist regularisation technique for graphs with highly heterogeneous degree distributions I 
+proposed to port from the undirected setting to directed clustering was introducing weighted 
+self-loops to each edge in order to even out the degree distribution. These self-loops' weights 
+were multiples $\tau\cdot c$ of the average in-degree $c$ in the graph, around which the typically 
+best values for undirected clustering lie.
+
+For this, and the next regularisation technique, I used graphs sampled from the
+ $\mathrm{DSBM}_\mathrm{PA}$ having three different underlying meta-graphs, ROCMG, the cleaner 
+cycle and the binary tree from before, respectively. For these experiments, I restricted the 
+search space to 5, 5 and 7 clusters in the graphs respectively, and chose values for the other 
+parameters as shown in Fig.\ \ref{fig:self_loops}.
+
+\begin{figure}[t!]
+\begin{subfigure}[t]{0.45\textwidth}
+\begin{center}
+\includegraphics[width=0.9\textwidth,center]{self_loop_complete.pdf}
+\end{center}
+\caption{ROCMG}
+\end{subfigure}
+\begin{subfigure}[t]{0.45\textwidth}
+\begin{center}
+\includegraphics[width=0.9\textwidth,center]{self_loop_cleaner_cycle.pdf}
+\end{center}
+\caption{Cleaner Cycle}
+\end{subfigure}
+\floatbox[{\capbeside\thisfloatsetup{capbesideposition={right,center},capbesidewidth=.45\textwidth}}]{figure}[\FBwidth]
+{\caption{Impact of introducing weighted self-loops to graph on performance, for the indicated meta-graphs.}\label{fig:self_loops}}{
+\begin{subfigure}[t]{0.45\textwidth}
+\begin{center}
+\includegraphics[width=0.9\textwidth,center]{self_loop_tree.pdf}
+\end{center}
+\caption{Binary Tree}
+\end{subfigure}
+}
+\end{figure}
+
+\setcounter{figure}{9}
+
+\begin{figure}[t!]
+\begin{subfigure}[t]{0.45\textwidth}
+\begin{center}
+\includegraphics[width=0.9\textwidth,center]{densify_complete.pdf}
+\end{center}
+\caption{ROCMG}
+\end{subfigure}
+\begin{subfigure}[t]{0.45\textwidth}
+\begin{center}
+\includegraphics[width=0.9\textwidth,center]{densify_cleaner_cycle.pdf}
+\end{center}
+\caption{Cleaner Cycle}
+\end{subfigure}
+\floatbox[{\capbeside\thisfloatsetup{capbesideposition={right,center},capbesidewidth=.45\textwidth}}]{figure}[\FBwidth]
+{\caption{Impact of superpositioning the input graph with a randomly oriented complete one, for the noted meta-graphs.}\label{fig:densify}}{
+\begin{subfigure}[t]{0.45\textwidth}
+\begin{center}
+\includegraphics[width=0.9\textwidth,center]{densify_tree.pdf}
+\end{center}
+\caption{Binary Tree}
+\end{subfigure}
+
+}
+\end{figure}
+
+These results are frankly sobering. We see that the introduction of these self-loops does not 
+generally impact the performance of either algorithm positively. DiSim is typically not affected 
+at all while Herm degrades not only in average performance if such self-loops are introduced, but 
+becomes much less reliable, in the sense that the performance variance increases significantly. 
+The only exception to this is the---in some sense---easier clustering task of the cleaner cycle, 
+where we observe no such degradation of performance, and perhaps even a very slight improvement. 
+We may conclude that this technique for regularising such skewed-degree-distribution graphs is not 
+useful in the context of directed clustering, which leads us to consider the second technique I 
+had mentioned in the previous chapter.
+
+\subsection{Making Graphs Denser To Reduce Peripheral Clustering Results}
+
+Recall that this technique aims to balance the sizes of returned clusters by making graphs denser 
+in the sense that a weighted complete graph is juxtaposed onto the input graph, where the edge 
+weights are all quite low.  To investigate the efficacy of this regularisation technique for the 
+task of directed clustering, the same parameter search space was explored as for the self-loop 
+technique. However, note that this technique required using a dense representation of the input 
+matrices. This meant that the computations were only feasible for size-reduced matrices, now 
+chosen to comprise around $1.0\scriptstyle{\mathrm E}4$ total vertices rather than around 
+$2.0\scriptstyle{\mathrm E}4$ as was the case with the previous experiments.
+
+The results of these experiments are presented in Fig.\ \ref{fig:densify}.
+
+ 
+
+Again, the observed results did not generally show any improvement beyond marginal results, and 
+similar tendencies were apparent as with the previous regularisation technique. However, there was 
+one noteworthy exception, in the case of graphs sampled from a cleaner-cycle meta-graph, in the 
+presence of some noise, with 60 outgoing edges from each node, where introducing every possible 
+edge with weight around 0.001 did improve performance noticeably. However, a few things should be 
+noted about this result. The cleaner cycle is, as mentioned, perhaps a very simple conceptual 
+clustering task because such high proportions of the edges carry information about the directional 
+communities underlying the graph. Furthermore, 60 outgoing edges is a very large number in such a 
+network, especially a size-reduced one; meaning that those graphs were perhaps denser than should 
+be expected in a real-world scenario.
+
+ 
+
+Nevertheless, this suggests that on a purely conceptual level, this technique can also be 
+applicable to the task of directed clustering in some scenarios. The example scenario I have found 
+here suggests that more generally, these would be situations where clustering conceptually should 
+be easy, but where performance is empirically poor.
+
+ 
+
+\section{Summary}
+
+In this chapter, I have concluded the investigations set out by this project. I have shown that 
+graphs sampled from the Directed Stochastic Block-Model with preferential Attachment, as 
+introduced in Chapter 3 can indeed be configured to contain directed communities in the sense 
+underlying the task of directed clustering, and that they model real-world networks in their 
+skewed in-degree distribution. Afterwards, I have briefly shown that the code I have written to 
+conduct the experiments of interest to this project was correct, and finally I have described 
+those experiments. I have been able to conclude that existing algorithms for directed clustering 
+do suffer in the face of highly heterogeneous tail distributions, that this effect does not render 
+them entirely useless. I have then shown, however, that techniques commonly used to counteract 
+such effects in undirected-graph clustering are not generally effective for the task of directed 
+clustering. That is, I have found no significant potential in one of these techniques, and while I 
+have demonstrated the efficacy of another for a particular parameterisation of my $\mathrm{DSBM}_{
+\mathrm{PA}}$, that set of parameters should be questioned with respect to its relevance to
+ real-world tasks due to the high number of edges present in the graph. 
+
+ Thus, I have accomplished the reuirements concerning the work to be done as laid out in Chapter 2.
+ Furthermore, I have guaranteed scientific validity of this work by the repeated execution of each 
+ experiment to get an idea of the variance in the performance to be observed, and have been 
+ careful to not misrepresent any of my results by indicating the observed variance wherever 
+ relevant. In short, this project has therefore been a success.

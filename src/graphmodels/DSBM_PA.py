@@ -1,7 +1,8 @@
 import numpy as np
 import numpy.random as rand
 
-def sample(k, N, P, C, c, a=2, initial_nodes_per_cluster=4, Herm=False, random_state=None):
+def sample(k, N, P, C, c, a=2, initial_nodes_per_cluster=4, Herm=False, random_state=None, **kwargs):
+	print(f"c={c}, N={N}")
 	from tqdm import tqdm as tqdm
 	if not (random_state == None):
 		rand.seed(random_state)
@@ -13,6 +14,7 @@ def sample(k, N, P, C, c, a=2, initial_nodes_per_cluster=4, Herm=False, random_s
 				flat_list = flat_list + l
 			else:
 				flat_list = flat_list + [l]
+		return flat_list
 	
 	def select(v, P):
 		index = -1
@@ -35,7 +37,7 @@ def sample(k, N, P, C, c, a=2, initial_nodes_per_cluster=4, Herm=False, random_s
 	
 	for i, com in enumerate(communities):
 		new_edges = [
-		            	[(com[j], c) for c in com[j+1:]] for j in range(len(com))]
+		            	[(com[j], c) for c in com[j+1:]] for j in range(len(com))
 			    ]
 		new_edges = flatten(new_edges)
 		G.add_edges_from(new_edges)
@@ -54,8 +56,10 @@ def sample(k, N, P, C, c, a=2, initial_nodes_per_cluster=4, Herm=False, random_s
 			dest_node = i 
 			r2 = rand.random()
 			dest = select(r2, C[comm])
+#			print(C.shape, P.shape, dest)
+			dbar = c * (C[:, dest] * P).sum() / P[dest]
 			while dest_node == i:
-				if rand.random() < c / (c+a):
+				if rand.random() < dbar / (dbar + a):
 					edges = community_edges[comm]
 					_, dest_node = edges[rand.randint(len(edges))]
 				else:
@@ -75,3 +79,29 @@ def sample(k, N, P, C, c, a=2, initial_nodes_per_cluster=4, Herm=False, random_s
 	res = csr_matrix(res)
 	#Need to return both adjacency matrix and underlying communities.
 	return (res, communities)
+
+def hard_cycle(k, η):
+	C = np.zeros((k,k))
+	for i in range(k):
+		C[i, (i+1) % k] = 1
+	noise = np.ones((k,k)) * η / (k-1)
+	noise -= C * η / (k-1)
+	C = C * (1 - η) + noise
+	return C
+
+def tree(h, η, σ):
+	k = 2**h - 1 
+	C = np.zeros((k,k))
+	for i in range(1, k, 2):
+		C[i, i+1] = σ
+		C[i, i//2] = 1-σ
+		C[i+1, i//2] = 1
+	C[0,0] = 1
+	nonzeros = (C > 0).astype(float)
+	noise = (1 - nonzeros)
+	for i in range(1, k, 2):
+		noise[i , :] = noise[i, :] * η / (k-2)
+		noise[i+1, :] = noise[i+1, :] * η / (k-1)
+	noise[0, :] = noise[0, :] * η / (k-1)
+	C = C * (1-η) + noise
+	return C
