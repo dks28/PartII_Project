@@ -1,0 +1,2 @@
+cloc --force-lang "Python",py ../src
+Makefile:14: recipe for target 'linecount' failed

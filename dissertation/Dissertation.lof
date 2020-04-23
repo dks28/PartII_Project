@@ -1,0 +1,19 @@
+\boolfalse {citerequest}\boolfalse {citetracker}\boolfalse {pagetracker}\boolfalse {backtracker}\relax 
+\addvspace {10\p@ }
+\addvspace {10\p@ }
+\addvspace {10\p@ }
+\contentsline {figure}{\numberline {3.1}{\ignorespaces A cyclical meta-graph on five clusters as used in the DSBM. Arrow direction indicates communication, arrow weight indicates frequency of edge direction.\relax }}{22}{figure.caption.38}
+\contentsline {figure}{\numberline {3.2}{\ignorespaces Often, sparsely connected peripheral subgraphs lead to poor partitions, when ones with more edges (as indicated in the dotted line) would be preferable.\relax }}{24}{figure.caption.43}
+\addvspace {10\p@ }
+\contentsline {figure}{\numberline {4.1}{\ignorespaces Empirical in-degree distributions (red scatter-plots) observed in $\mathrm {DSBM}_\mathrm {PA}$, for $c=10$ and different values of $a$, as compared to theoretical distribution in Price's classical model (black line).\relax }}{26}{figure.caption.44}
+\contentsline {figure}{\numberline {4.2}{\ignorespaces The 3D-values of the singular vectors for each of the 4500 vertices in the toy graph. The underlying communities are outlined in colour.\relax }}{26}{figure.caption.45}
+\contentsline {figure}{\numberline {4.3}{\ignorespaces ARI-scores of clustering algorithms plotted against noise for both models of random graphs, and different graph densities, for graphs with randomly-oriented complete meta-graph.\relax }}{28}{figure.caption.47}
+\contentsline {figure}{\numberline {4.4}{\ignorespaces ARI-scores of clustering algorithms plotted against noise for both models of random graphs, and different graph densities, for graphs with noisy cyclical meta-graph.\relax }}{28}{figure.caption.48}
+\contentsline {figure}{\numberline {4.5}{\ignorespaces ARI-scores of clustering algorithms plotted against noise parameter $\eta $ for various $k $ and different graph densities, for graphs with more cleanly cyclical meta-graph.\relax }}{30}{figure.caption.51}
+\contentsline {figure}{\numberline {4.6}{\ignorespaces ARI-scores of clustering algorithms plotted against noise parameter $\eta $ for different graph densities, for graphs with meta-graphs resembling binary trees.\relax }}{30}{figure.caption.52}
+\contentsline {figure}{\numberline {4.7}{\ignorespaces The performance of Herm and DiSim as the proportion of edges whose endpoints share a cluster increases, for graphs with ROCMG.\relax }}{32}{figure.caption.55}
+\contentsline {figure}{\numberline {4.8}{\ignorespaces Evaluating the performance of the modified Herm trying to do simultaneously undirected clustering as well as directed clustering.\relax }}{33}{figure.caption.56}
+\contentsline {figure}{\numberline {4.9}{\ignorespaces Impact of introducing weighted self-loops to graph on performance, for the indicated meta-graphs.\relax }}{33}{figure.caption.57}
+\contentsline {figure}{\numberline {4.10}{\ignorespaces Impact of superpositioning the input graph with a randomly oriented complete one, for the noted meta-graphs.\relax }}{34}{figure.caption.58}
+\addvspace {10\p@ }
+\addvspace {10\p@ }

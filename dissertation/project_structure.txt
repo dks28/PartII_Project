@@ -1,0 +1,24 @@
+.
+|-- ClusteringAlgs/
+|   |-- disim.py
+|   `-- herm.py
+|-- figures/
+|-- graphmodels/
+|   |-- DSBM.py
+|   |-- DSBM_PA.py
+|   |-- convert.py
+|   |-- graphsampling.ipynb
+|   `-- hermify.py
+|-- results/
+|   |-- cluster_internal_edge_density.csv
+|   `-- ...
+|-- run_tests.py
+`-- testing
+    |-- cleancycl_meta_noise.py
+    |-- complete_meta_noise.py
+    |-- cyclic_meta_noise.py
+    |-- deprecated/
+    |-- evaluate.py
+    |-- graph_eval.py
+    |-- intra_cluster_edges.py
+    `-- tree_meta_noise.py
